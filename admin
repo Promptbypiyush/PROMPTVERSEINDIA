@@ -1,1 +1,22 @@
-
+backend:
+  name: github
+  repo: Promptbypiyush/PROMPTVERSEINDIA
+  branch: main
+media_folder: "images"
+public_folder: "images"
+collections:
+  - name: "posts"
+    label: "Posts"
+    folder: "_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - label: "Title"
+        name: "title"
+        widget: "string"
+      - label: "Image"
+        name: "image"
+        widget: "image"
+      - label: "Prompt"
+        name: "prompt"
+        widget: "text"
