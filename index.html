@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -87,13 +92,11 @@
         AI आर्ट, बेस्ट प्रॉम्प्ट्स और डेली क्रिएटिव गाइड। नीचे से प्रॉम्प्ट एक क्लिक में कॉपी करें!
       </p>
 
-      <!-- Dynamic Social Icons Container: ONLY displays icons when user inputs link -->
-      <div id="ui-social-container" class="flex flex-wrap items-center justify-center gap-3 pt-5 border-t border-slate-800/80 mt-5">
-        <!-- Injected via JavaScript based on saved links -->
-      </div>
+      <!-- Dynamic Social Icons Container -->
+      <div id="ui-social-container" class="flex flex-wrap items-center justify-center gap-3 pt-5 border-t border-slate-800/80 mt-5"></div>
     </section>
 
-    <!-- Video Player Section: ONLY visible if video URL exists -->
+    <!-- Video Player Section -->
     <section id="ui-video-wrapper" class="hidden space-y-2">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
@@ -120,7 +123,7 @@
           <i class="fa-solid fa-wand-magic-sparkles text-orange-400"></i> AI प्रॉम्प्ट्स & रेफरेंस
         </h2>
         <span id="ui-prompt-counter" class="text-[11px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2.5 py-0.5 rounded-full">
-          0 प्रॉम्प्ट्स
+          लोड हो रहा है...
         </span>
       </div>
 
@@ -130,22 +133,23 @@
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
           <input type="text" 
                  id="search-input" 
+                 oninput="filterPrompts()"
                  placeholder="प्रॉम्प्ट खोजें..." 
                  class="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-2 pl-9 pr-4 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-orange-500 transition">
         </div>
 
         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs custom-scroll">
-          <button onclick="filterCategory('ALL')" class="cat-pill active px-3 py-1 rounded-lg text-[11px] font-medium transition bg-orange-600 text-white whitespace-nowrap" data-cat="ALL">सब देखें</button>
-          <button onclick="filterCategory('Midjourney')" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap" data-cat="Midjourney">Midjourney</button>
-          <button onclick="filterCategory('ChatGPT')" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap" data-cat="ChatGPT">ChatGPT</button>
-          <button onclick="filterCategory('Flux AI')" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap" data-cat="Flux AI">Flux AI</button>
-          <button onclick="filterCategory('Other')" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap" data-cat="Other">अन्य</button>
+          <button onclick="setCategory('ALL', this)" class="cat-pill active px-3 py-1 rounded-lg text-[11px] font-medium transition bg-orange-600 text-white whitespace-nowrap">सब देखें</button>
+          <button onclick="setCategory('Midjourney', this)" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap">Midjourney</button>
+          <button onclick="setCategory('ChatGPT', this)" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap">ChatGPT</button>
+          <button onclick="setCategory('Flux AI', this)" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap">Flux AI</button>
+          <button onclick="setCategory('Other', this)" class="cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap">अन्य</button>
         </div>
       </div>
 
       <!-- Prompts Feed Container -->
       <div id="prompts-container" class="space-y-4">
-        <!-- Rendered via JavaScript -->
+        <p class="text-center text-xs text-slate-500 py-6">प्रॉम्प्ट लोड हो रहे हैं...</p>
       </div>
     </section>
 
@@ -191,7 +195,7 @@
         <div class="max-w-xs mx-auto space-y-2">
           <input type="password" 
                  id="admin-pin-input" 
-                 placeholder="पिन डालें (Default: 7860)" 
+                 placeholder="पिन डालें (Default: 9695)" 
                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-center text-sm tracking-widest text-white focus:outline-none focus:border-orange-500">
           <p id="pin-error-msg" class="text-xs text-red-400 hidden">गलत पिन! कृपया पुनः प्रयास करें।</p>
           <button onclick="checkAdminPin()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30">
@@ -218,7 +222,6 @@
 
         <!-- TAB 1: Add New Prompt -->
         <div id="tab-view-add" class="space-y-4">
-          <!-- Category Selector -->
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1.5">AI टूल चुनें</label>
             <select id="new-prompt-cat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
@@ -230,7 +233,6 @@
             </select>
           </div>
 
-          <!-- Direct Gallery Image Upload (No URL required) -->
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1.5">रेफरेंस फोटो (सीधे फोन गैलरी से)</label>
             <label for="prompt-gallery-input" class="cursor-pointer block border-2 border-dashed border-slate-700 hover:border-orange-500 rounded-2xl p-4 text-center bg-slate-900/50 transition group">
@@ -249,13 +251,12 @@
             </label>
           </div>
 
-          <!-- Prompt Text Area -->
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1.5">प्रॉम्प्ट टेक्स्ट (यहाँ पेस्ट करें)</label>
             <textarea id="new-prompt-text" rows="4" placeholder="यहाँ अपना AI प्रॉम्प्ट पेस्ट करें..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"></textarea>
           </div>
 
-          <button onclick="publishNewPrompt()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2">
+          <button id="btn-publish" onclick="publishNewPrompt()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2">
             <i class="fa-solid fa-paper-plane"></i> वेबसाइट पर पब्लिश करें
           </button>
         </div>
@@ -267,14 +268,12 @@
             <span id="manage-count-badge" class="font-bold text-white">0</span>
           </div>
           <div id="manage-prompts-list" class="space-y-2 max-h-72 overflow-y-auto custom-scroll pr-1">
-            <!-- Dynamic Manage Items -->
+            <!-- Dynamic Items -->
           </div>
         </div>
 
         <!-- TAB 3: Profile & Links Settings -->
         <div id="tab-view-profile" class="hidden space-y-4">
-          
-          <!-- Avatar from Gallery -->
           <div class="flex items-center gap-4 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
             <img id="admin-avatar-thumb" src="" alt="Thumbnail" class="w-14 h-14 rounded-full object-cover ring-2 ring-orange-500">
             <div>
@@ -286,7 +285,6 @@
             </div>
           </div>
 
-          <!-- Basic Info -->
           <div class="grid grid-cols-1 gap-2.5">
             <div>
               <label class="block text-xs font-semibold text-slate-300 mb-1">आपका नाम या ब्रांड</label>
@@ -298,20 +296,16 @@
             </div>
           </div>
 
-          <!-- YouTube Video Embed -->
           <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800 space-y-1.5">
             <label class="block text-xs font-bold text-slate-200 flex items-center gap-1.5">
               <i class="fa-brands fa-youtube text-red-500"></i> यूट्यूब वीडियो लिंक
             </label>
             <input type="text" id="cfg-video" placeholder="यूट्यूब वीडियो लिंक या Shorts लिंक पेस्ट करें" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-            <p class="text-[10px] text-slate-400">लिंक डालने पर ही वीडियो दिखेगा। खाली छोड़ने पर वीडियो छिपा रहेगा।</p>
+            <p class="text-[10px] text-slate-400">लिंक डालने पर ही वीडियो दिखेगा। खाली छोड़ने पर छिपा रहेगा।</p>
           </div>
 
-          <!-- Social Media Links (Only shown when added) -->
           <div class="space-y-2 pt-1">
             <p class="text-xs font-bold text-slate-300">सोशल मीडिया और वेबसाइट लिंक्स</p>
-            <p class="text-[10px] text-slate-400">सिर्फ वही आइकन स्क्रीन पर दिखेंगे जिनका लिंक आप यहाँ भरेंगे:</p>
-            
             <div class="space-y-2">
               <div class="flex items-center gap-2">
                 <span class="w-7 text-center text-pink-500"><i class="fa-brands fa-instagram"></i></span>
@@ -339,617 +333,27 @@
           <button onclick="saveProfileSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-emerald-600/30">
             सेटिंग्स सेव करें
           </button>
-
-          <!-- 1-Click Backup Export/Import -->
-          <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-            <button onclick="exportSiteBackup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold py-2 rounded-xl border border-slate-700 transition">
-              <i class="fa-solid fa-download text-orange-400 mr-1"></i> बैकअप डाउनलोड
-            </button>
-            <label for="restore-file-input" class="flex-1 text-center cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold py-2 rounded-xl border border-slate-700 transition">
-              <i class="fa-solid fa-upload text-sky-400 mr-1"></i> बैकअप रीस्टोर
-            </label>
-            <input type="file" id="restore-file-input" accept=".json" class="hidden" onchange="importSiteBackup(event)">
-          </div>
-
         </div>
 
       </div>
-
     </div>
-  </div>
-
-  <!-- Image Lightbox Modal -->
-  <div id="image-lightbox" class="fixed inset-0 z-50 bg-black/90 hidden items-center justify-center p-4 backdrop-blur-sm" onclick="closeLightbox()">
-    <div class="relative max-w-lg max-h-[85vh] w-full" onclick="event.stopPropagation()">
-      <button onclick="closeLightbox()" class="absolute -top-10 right-0 text-white text-lg bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      <img id="lightbox-img" src="" alt="Full View" class="w-full h-auto max-h-[80vh] object-contain rounded-2xl shadow-2xl border border-slate-700">
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
-  <div id="toast-box" class="fixed bottom-6 z-50 bg-orange-600 text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-2xl transition-all duration-300 opacity-0 translate-y-4 pointer-events-none flex items-center gap-2">
-    <i class="fa-solid fa-circle-check"></i>
-    <span id="toast-text">प्रॉम्प्ट कॉपी हो गया!</span>
   </div>
 
   <script>
-    const ADMIN_PIN = "9695";
-
-    const DEFAULT_CONFIG = {
-      name: "PromptVerse India",
-      bio: "AI आर्ट, बेस्ट प्रॉम्प्ट्स और डेली क्रिएटिव गाइड। नीचे से प्रॉम्प्ट एक क्लिक में कॉपी करें!",
-      avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=240&auto=format&fit=crop&q=80",
-      videoUrl: "",
-      web: "",
-      insta: "",
-      yt: "",
-      tele: "",
-      wa: ""
+    // Firebase Config (Aapki Exact Details)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiqQNAriWNoL9FUzQcUMCP4-Z9ueARY7c",
+      authDomain: "promptverseindia-d437d.firebaseapp.com",
+      projectId: "promptverseindia-d437d",
+      storageBucket: "promptverseindia-d437d.firebasestorage.app",
+      messagingSenderId: "764009719974",
+      appId: "1:764009719974:web:284e789aa962da8f96eca7"
     };
 
-    // State Variables
-    let siteConfig = { ...DEFAULT_CONFIG };
-    let prompts = [];
-    let currentFilter = "ALL";
-    let selectedPromptImageBase64 = "";
-    let selectedAvatarBase64 = "";
-
-    /* Fail-Safe Storage Helpers: Works in all browsers and restricted iframes */
-    function safeStorageSave() {
-      try {
-        localStorage.setItem('pvi_config', JSON.stringify(siteConfig));
-        localStorage.setItem('pvi_prompts', JSON.stringify(prompts));
-      } catch (err) {
-        console.warn("Storage notice:", err);
-      }
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
     }
+    const db = firebase.firestore();
 
-    function safeStorageLoad() {
-      try {
-        const rawCfg = localStorage.getItem('pvi_config');
-        if (rawCfg) {
-          siteConfig = { ...DEFAULT_CONFIG, ...JSON.parse(rawCfg) };
-        }
-        const rawPrompts = localStorage.getItem('pvi_prompts');
-        if (rawPrompts) {
-          const parsedP = JSON.parse(rawPrompts);
-          if (Array.isArray(parsedP)) prompts = parsedP;
-        }
-      } catch (err) {
-        console.warn("Storage load warning:", err);
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      safeStorageLoad();
-      applySiteConfig();
-      renderPrompts();
-      setupSearch();
-    });
-
-    /* URL Normalizer Helper */
-    function normalizeUrl(type, val) {
-      if (!val) return '';
-      let clean = val.trim();
-      if (!clean) return '';
-
-      if (type === 'wa') {
-        const digits = clean.replace(/\D/g, '');
-        // If user enters 10 digit Indian number without country code, prepend 91
-        const fullNumber = (digits.length === 10) ? ('91' + digits) : digits;
-        return fullNumber ? `https://api.whatsapp.com/send?phone=${fullNumber}` : '';
-      }
-      if (type === 'insta') {
-        if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-        return `https://www.instagram.com/${clean.replace(/^@/, '')}/`;
-      }
-      if (type === 'yt') {
-        if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-        const channelHandle = clean.startsWith('@') ? clean : '@' + clean;
-        return `https://www.youtube.com/${channelHandle}`;
-      }
-      if (type === 'tele') {
-        if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-        return `https://t.me/${clean.replace(/^@/, '')}`;
-      }
-      if (type === 'web') {
-        if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-        return `https://${clean}`;
-      }
-      return clean;
-    }
-
-    /* Multi-Fallback Link Opener: Works in restricted iframes, mobile browsers, and web apps */
-    function openExternalLink(url) {
-      if (!url) return;
-
-      try {
-        // Attempt 1: Window open in new blank tab
-        const win = window.open(url, '_blank', 'noopener,noreferrer');
-        if (win && !win.closed) {
-          win.focus();
-          return;
-        }
-      } catch (e) {
-        console.warn("window.open failed, trying anchor fallback:", e);
-      }
-
-      try {
-        // Attempt 2: Programmatic Anchor click with rel attributes
-        const a = document.createElement('a');
-        a.href = url;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        return;
-      } catch (e) {
-        console.warn("anchor click failed, navigating top window:", e);
-      }
-
-      try {
-        // Attempt 3: Direct Top Window Navigation
-        if (window.top) {
-          window.top.location.href = url;
-        } else {
-          window.location.href = url;
-        }
-      } catch (e) {
-        window.location.href = url;
-      }
-    }
-
-    /* YouTube Embed Link Transformer */
-    function formatYouTubeEmbed(url) {
-      if (!url) return '';
-      try {
-        if (url.includes('embed/')) return url;
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        if (match && match[2].length === 11) {
-          return `https://www.youtube.com/embed/${match[2]}`;
-        }
-      } catch(e) {}
-      return url;
-    }
-
-    function applySiteConfig() {
-      // Name & Bio
-      document.getElementById('ui-name').innerText = siteConfig.name || DEFAULT_CONFIG.name;
-      document.getElementById('ui-bio').innerText = siteConfig.bio || DEFAULT_CONFIG.bio;
-      
-      // Avatar
-      const avatarEl = document.getElementById('ui-avatar');
-      if (avatarEl) {
-        avatarEl.src = siteConfig.avatar || DEFAULT_CONFIG.avatar;
-      }
-
-      // Social Links (ONLY show icons whose links exist)
-      const socialContainer = document.getElementById('ui-social-container');
-      socialContainer.innerHTML = '';
-      let linksCount = 0;
-
-      const linksDef = [
-        { key: 'insta', icon: 'fa-brands fa-instagram', bg: 'from-amber-500 via-pink-500 to-purple-600', title: 'Instagram' },
-        { key: 'yt', icon: 'fa-brands fa-youtube', bg: 'from-red-600 to-red-700', title: 'YouTube' },
-        { key: 'wa', icon: 'fa-brands fa-whatsapp', bg: 'from-emerald-500 to-green-600', title: 'WhatsApp' },
-        { key: 'tele', icon: 'fa-brands fa-telegram', bg: 'from-sky-400 to-blue-600', title: 'Telegram' },
-        { key: 'web', icon: 'fa-solid fa-globe', bg: 'from-slate-700 to-slate-800', title: 'Website' }
-      ];
-
-      linksDef.forEach(item => {
-        const val = siteConfig[item.key];
-        if (val && val.trim() !== "") {
-          linksCount++;
-          const targetUrl = normalizeUrl(item.key, val);
-          const btn = document.createElement('a');
-          btn.href = targetUrl;
-          btn.target = "_blank";
-          btn.rel = "noopener noreferrer";
-          btn.title = item.title;
-          btn.className = `w-10 h-10 rounded-2xl bg-gradient-to-tr ${item.bg} flex items-center justify-center text-white text-base shadow-md hover:scale-110 active:scale-95 transition-all cursor-pointer`;
-          btn.innerHTML = `<i class="${item.icon}"></i>`;
-          
-          // Wire bulletproof click handler
-          btn.onclick = (e) => {
-            handleSocialLinkClick(e, targetUrl, item.title, item.icon, item.bg);
-          };
-          socialContainer.appendChild(btn);
-        }
-      });
-
-      socialContainer.classList.toggle('hidden', linksCount === 0);
-
-      // Featured Video Handling (ONLY show if URL is present)
-      const videoWrapper = document.getElementById('ui-video-wrapper');
-      const videoFrame = document.getElementById('ui-video-frame');
-      if (siteConfig.videoUrl && siteConfig.videoUrl.trim() !== "") {
-        videoFrame.src = formatYouTubeEmbed(siteConfig.videoUrl.trim());
-        videoWrapper.classList.remove('hidden');
-      } else {
-        videoFrame.src = "";
-        videoWrapper.classList.add('hidden');
-      }
-    }
-
-    function renderPrompts() {
-      const container = document.getElementById('prompts-container');
-      const counterEl = document.getElementById('ui-prompt-counter');
-      const query = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
-
-      // Filter by Category and Search
-      const filtered = prompts.filter(p => {
-        const matchCat = (currentFilter === 'ALL') || (p.category === currentFilter);
-        const matchQuery = !query || p.prompt.toLowerCase().includes(query) || (p.title && p.title.toLowerCase().includes(query));
-        return matchCat && matchQuery;
-      });
-
-      counterEl.innerText = `${prompts.length} प्रॉम्प्ट्स`;
-      container.innerHTML = "";
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="glass-box rounded-2xl p-8 text-center space-y-2 border border-dashed border-slate-800">
-            <i class="fa-solid fa-wand-magic text-2xl text-slate-600"></i>
-            <p class="text-xs font-semibold text-slate-400">अभी कोई प्रॉम्प्ट उपलब्ध नहीं है</p>
-            <p class="text-[11px] text-slate-500">एडमिन पैनल से अपना पहला प्रॉम्प्ट जोड़ें!</p>
-          </div>
-        `;
-        return;
-      }
-
-      filtered.forEach(p => {
-        const card = document.createElement('div');
-        card.className = "glass-box rounded-2xl p-3.5 space-y-3 shadow-lg border border-slate-800/80 transition-all hover:border-slate-700";
-
-        let imgHtml = "";
-        if (p.img) {
-          imgHtml = `
-            <div class="relative w-full rounded-xl overflow-hidden cursor-pointer group bg-slate-950" onclick="openLightbox('${p.img}')">
-              <img src="${p.img}" alt="Reference" class="w-full h-48 sm:h-52 object-cover group-hover:scale-105 transition-transform duration-300">
-              <span class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-[10px] text-white px-2 py-0.5 rounded-md flex items-center gap-1">
-                <i class="fa-solid fa-expand text-[9px]"></i> बड़ा करें
-              </span>
-            </div>
-          `;
-        }
-
-        card.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-400 border border-orange-500/20">
-              ${p.category || 'General'}
-            </span>
-            <span class="text-[10px] text-slate-500 flex items-center gap-1">
-              <i class="fa-regular fa-copy"></i> ${p.copies || 0} कॉपी
-            </span>
-          </div>
-
-          ${imgHtml}
-
-          <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800/80 space-y-2.5">
-            <p class="text-xs text-slate-200 font-mono leading-relaxed select-all">${p.prompt}</p>
-            <button onclick="copyPromptText(${p.id})" class="w-full bg-orange-600 hover:bg-orange-500 active:scale-[0.98] text-white font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-2 transition shadow">
-              <i class="fa-regular fa-clone"></i> प्रॉम्प्ट कॉपी करें (Copy)
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function copyPromptText(id) {
-      const item = prompts.find(p => p.id === id);
-      if (!item) return;
-
-      const text = item.prompt;
-      
-      // Iframe safe copy
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.position = "fixed";
-      textArea.style.opacity = "0";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-        document.execCommand('copy');
-      } catch (err) {}
-      document.body.removeChild(textArea);
-
-      item.copies = (item.copies || 0) + 1;
-      safeStorageSave();
-      renderPrompts();
-      showToast("प्रॉम्प्ट क्लिपबोर्ड पर कॉपी हो गया! ✨");
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById('toast-box');
-      const textEl = document.getElementById('toast-text');
-      textEl.innerText = msg;
-      toast.classList.remove('opacity-0', 'translate-y-4');
-      toast.classList.add('opacity-100', 'translate-y-0');
-      setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-4');
-      }, 2200);
-    }
-
-    function filterCategory(cat) {
-      currentFilter = cat;
-      document.querySelectorAll('.cat-pill').forEach(btn => {
-        if (btn.dataset.cat === cat) {
-          btn.className = "cat-pill active px-3 py-1 rounded-lg text-[11px] font-medium transition bg-orange-600 text-white whitespace-nowrap";
-        } else {
-          btn.className = "cat-pill px-3 py-1 rounded-lg text-[11px] font-medium transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-white whitespace-nowrap";
-        }
-      });
-      renderPrompts();
-    }
-
-    function setupSearch() {
-      const input = document.getElementById('search-input');
-      if (input) {
-        input.addEventListener('input', () => renderPrompts());
-      }
-    }
-
-    function handlePromptGalleryFile(input) {
-      const file = input.files && input.files[0];
-      if (!file) return;
-
-      compressImage(file, 900, 0.75, (base64) => {
-        selectedPromptImageBase64 = base64;
-        document.getElementById('prompt-preview-img').src = base64;
-        document.getElementById('prompt-upload-prompt').classList.add('hidden');
-        document.getElementById('prompt-preview-wrap').classList.remove('hidden');
-      });
-    }
-
-    function clearPromptImage(e) {
-      if (e) e.stopPropagation();
-      selectedPromptImageBase64 = "";
-      document.getElementById('prompt-gallery-input').value = "";
-      document.getElementById('prompt-preview-wrap').classList.add('hidden');
-      document.getElementById('prompt-upload-prompt').classList.remove('hidden');
-    }
-
-    function handleProfileGalleryFile(input) {
-      const file = input.files && input.files[0];
-      if (!file) return;
-
-      compressImage(file, 400, 0.8, (base64) => {
-        selectedAvatarBase64 = base64;
-        document.getElementById('admin-avatar-thumb').src = base64;
-      });
-    }
-
-    function compressImage(file, maxDimension, quality, callback) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          let w = img.width;
-          let h = img.height;
-
-          if (w > maxDimension || h > maxDimension) {
-            if (w > h) {
-              h = Math.round((h * maxDimension) / w);
-              w = maxDimension;
-            } else {
-              w = Math.round((w * maxDimension) / h);
-              h = maxDimension;
-            }
-          }
-
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const compressed = canvas.toDataURL('image/jpeg', quality);
-          callback(compressed);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function openAdminModal() {
-      document.getElementById('admin-modal').classList.remove('hidden');
-      document.getElementById('admin-modal').classList.add('flex');
-      document.getElementById('admin-pin-view').classList.remove('hidden');
-      document.getElementById('admin-main-view').classList.add('hidden');
-      document.getElementById('admin-pin-input').value = '';
-      document.getElementById('pin-error-msg').classList.add('hidden');
-    }
-
-    function closeAdminModal() {
-      document.getElementById('admin-modal').classList.add('hidden');
-      document.getElementById('admin-modal').classList.remove('flex');
-    }
-
-    function checkAdminPin() {
-      const pin = document.getElementById('admin-pin-input').value.trim();
-      if (pin === ADMIN_PIN) {
-        document.getElementById('admin-pin-view').classList.add('hidden');
-        document.getElementById('admin-main-view').classList.remove('hidden');
-        populateProfileFields();
-        switchTab('add');
-      } else {
-        document.getElementById('pin-error-msg').classList.remove('hidden');
-      }
-    }
-
-    function switchTab(tab) {
-      // Button states
-      document.getElementById('tab-btn-add').className = (tab === 'add') ? "flex-1 py-1.5 rounded-lg font-bold text-white bg-orange-600 transition text-center" : "flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center";
-      document.getElementById('tab-btn-manage').className = (tab === 'manage') ? "flex-1 py-1.5 rounded-lg font-bold text-white bg-orange-600 transition text-center" : "flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center";
-      document.getElementById('tab-btn-profile').className = (tab === 'profile') ? "flex-1 py-1.5 rounded-lg font-bold text-white bg-orange-600 transition text-center" : "flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center";
-
-      // View visibility
-      document.getElementById('tab-view-add').classList.toggle('hidden', tab !== 'add');
-      document.getElementById('tab-view-manage').classList.toggle('hidden', tab !== 'manage');
-      document.getElementById('tab-view-profile').classList.toggle('hidden', tab !== 'profile');
-
-      if (tab === 'manage') renderManageList();
-      if (tab === 'profile') populateProfileFields();
-    }
-
-    function publishNewPrompt() {
-      const cat = document.getElementById('new-prompt-cat').value;
-      const text = document.getElementById('new-prompt-text').value.trim();
-
-      if (!text) {
-        showToast("कृपया प्रॉम्प्ट टेक्स्ट दर्ज करें!");
-        return;
-      }
-
-      const newPrompt = {
-        id: Date.now(),
-        category: cat,
-        prompt: text,
-        img: selectedPromptImageBase64 || "",
-        copies: 0
-      };
-
-      prompts.unshift(newPrompt);
-      safeStorageSave();
-
-      // Reset fields
-      document.getElementById('new-prompt-text').value = '';
-      clearPromptImage();
-
-      renderPrompts();
-      showToast("नया प्रॉम्प्ट पब्लिश हो गया! ✅");
-      setTimeout(() => closeAdminModal(), 600);
-    }
-
-    function renderManageList() {
-      const container = document.getElementById('manage-prompts-list');
-      document.getElementById('manage-count-badge').innerText = prompts.length;
-      container.innerHTML = '';
-
-      if (prompts.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">कोई प्रॉम्प्ट नहीं है।</p>`;
-        return;
-      }
-
-      prompts.forEach(p => {
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 gap-2";
-        row.innerHTML = `
-          <div class="flex items-center gap-2 overflow-hidden">
-            ${p.img ? `<img src="${p.img}" class="w-9 h-9 rounded-lg object-cover flex-shrink-0">` : `<div class="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center text-slate-500 text-xs flex-shrink-0"><i class="fa-solid fa-font"></i></div>`}
-            <div class="truncate text-left">
-              <span class="text-[10px] font-bold text-orange-400 uppercase">${p.category}</span>
-              <p class="text-xs text-slate-200 truncate max-w-[200px]">${p.prompt}</p>
-            </div>
-          </div>
-          <button onclick="deletePromptItem(${p.id})" class="text-red-400 hover:text-red-300 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs transition">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function deletePromptItem(id) {
-      prompts = prompts.filter(p => p.id !== id);
-      safeStorageSave();
-      renderPrompts();
-      renderManageList();
-      showToast("प्रॉम्प्ट हटा दिया गया!");
-    }
-
-    function populateProfileFields() {
-      document.getElementById('cfg-name').value = siteConfig.name || '';
-      document.getElementById('cfg-bio').value = siteConfig.bio || '';
-      document.getElementById('cfg-video').value = siteConfig.videoUrl || '';
-      document.getElementById('cfg-insta').value = siteConfig.insta || '';
-      document.getElementById('cfg-yt').value = siteConfig.yt || '';
-      document.getElementById('cfg-wa').value = siteConfig.wa || '';
-      document.getElementById('cfg-tele').value = siteConfig.tele || '';
-      document.getElementById('cfg-web').value = siteConfig.web || '';
-
-      selectedAvatarBase64 = siteConfig.avatar || DEFAULT_CONFIG.avatar;
-      document.getElementById('admin-avatar-thumb').src = selectedAvatarBase64;
-    }
-
-    function saveProfileSettings() {
-      const name = document.getElementById('cfg-name').value.trim();
-      const bio = document.getElementById('cfg-bio').value.trim();
-      
-      if (name) siteConfig.name = name;
-      siteConfig.bio = bio;
-
-      if (selectedAvatarBase64) {
-        siteConfig.avatar = selectedAvatarBase64;
-      }
-
-      siteConfig.videoUrl = document.getElementById('cfg-video').value.trim();
-      siteConfig.insta = document.getElementById('cfg-insta').value.trim();
-      siteConfig.yt = document.getElementById('cfg-yt').value.trim();
-      siteConfig.wa = document.getElementById('cfg-wa').value.trim();
-      siteConfig.tele = document.getElementById('cfg-tele').value.trim();
-      siteConfig.web = document.getElementById('cfg-web').value.trim();
-
-      safeStorageSave();
-      applySiteConfig();
-      showToast("प्रोफाइल और सेटिंग्स सुरक्षित हो गईं! ✅");
-      setTimeout(() => closeAdminModal(), 600);
-    }
-
-    /* Backup & Restore */
-    function exportSiteBackup() {
-      const data = { config: siteConfig, prompts: prompts };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `PromptVerse_Backup_${Date.now()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast("बैकअप डाउनलोड हो गया! 📥");
-    }
-
-    function importSiteBackup(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          if (parsed && (parsed.config || parsed.prompts)) {
-            if (parsed.config) siteConfig = { ...DEFAULT_CONFIG, ...parsed.config };
-            if (Array.isArray(parsed.prompts)) prompts = parsed.prompts;
-            safeStorageSave();
-            applySiteConfig();
-            renderPrompts();
-            populateProfileFields();
-            showToast("बैकअप सफलतापूर्वक रीस्टोर हो गया! 🎉");
-          }
-        } catch(err) {
-          showToast("बैकअप फाइल लोड नहीं हो सकी!");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    /* Lightbox Modal */
-    function openLightbox(url) {
-      document.getElementById('lightbox-img').src = url;
-      document.getElementById('image-lightbox').classList.remove('hidden');
-      document.getElementById('image-lightbox').classList.add('flex');
-    }
-
-    function closeLightbox() {
-      document.getElementById('image-lightbox').classList.add('hidden');
-      document.getElementById('image-lightbox').classList.remove('flex');
-    }
-  </script>
-</body>
-</html>
+    let allPrompts = [];
+    let selectedPromptImageBa
