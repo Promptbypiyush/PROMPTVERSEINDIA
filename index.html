@@ -54,20 +54,6 @@
       background: #374151;
       border-radius: 4px;
     }
-    /* एडमिन मोडल हमेशा सबसे ऊपर रहे */
-    #admin-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.88);
-      z-index: 99999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-3 sm:p-5 antialiased selection:bg-orange-500 selection:text-white">
@@ -85,6 +71,7 @@
       </div>
     </header>
 
+    <!-- Profile Header Card -->
     <section class="glass-box rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
       <div class="absolute -top-16 -right-16 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
@@ -126,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Prompts Section -->
+    <!-- Prompts Feed Section -->
     <section class="space-y-3.5">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
@@ -161,59 +148,41 @@
       </div>
     </section>
 
-    <!-- Footer & Admin Trigger -->
-    <footer class="pt-6 pb-8 text-center space-y-2">
-      <button type="button" onclick="openAdminModal()" class="inline-flex items-center gap-2 text-xs font-semibold text-orange-400 hover:text-white bg-slate-900 px-4 py-2.5 rounded-xl border border-orange-500/40 hover:bg-orange-600 transition shadow-lg cursor-pointer">
-        <i class="fa-solid fa-lock text-[11px]"></i> ओनर कंट्रोल पैनल (Admin Login)
-      </button>
-      <p class="text-[11px] text-slate-600">PromptVerse India &copy; 2026</p>
-    </footer>
-
-  </main>
-
-  <!-- Admin Modal Popup -->
-  <div id="admin-modal">
-    <div class="glass-box w-full max-w-lg rounded-3xl p-5 sm:p-6 border border-slate-700 shadow-2xl max-h-[92vh] flex flex-col">
+    <!-- Built-in Direct Admin Section (No Hidden Popups) -->
+    <section id="admin-direct-card" class="glass-box rounded-3xl p-5 border border-slate-800 shadow-2xl space-y-4 mt-8">
       
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm font-bold">
-            <i class="fa-solid fa-sliders"></i>
+          <div class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-lock"></i>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-white">एडमिन डैशबोर्ड</h3>
-            <p class="text-[10px] text-slate-400">प्रॉम्प्ट, वीडियो और प्रोफाइल कंट्रोल</p>
+            <h3 class="text-sm font-bold text-white">ओनर कंट्रोल पैनल (Admin Panel)</h3>
+            <p class="text-[10px] text-slate-400">नया प्रॉम्प्ट पोस्ट करें या सेटिंग्स बदलें</p>
           </div>
         </div>
-        <button type="button" onclick="closeAdminModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
-          <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
+        <span id="admin-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">Locked</span>
       </div>
 
-      <!-- Step 1: Admin PIN Screen -->
-      <div id="admin-pin-view" class="py-6 space-y-4 text-center">
-        <div class="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center mx-auto text-xl">
-          <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <div>
-          <h4 class="text-sm font-bold text-white">ओनर पिन दर्ज करें</h4>
-          <p class="text-xs text-slate-400 mt-1">कोड: 7860</p>
-        </div>
-        <div class="max-w-xs mx-auto space-y-2">
+      <!-- PIN Input View -->
+      <div id="admin-pin-view" class="space-y-3 py-2 text-center">
+        <p class="text-xs text-slate-400">पैनल खोलने के लिए ओनर पिन डालें:</p>
+        <div class="flex items-center justify-center gap-2 max-w-xs mx-auto">
           <input type="password" 
                  id="admin-pin-input" 
-                 placeholder="7860 डालें" 
-                 class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-center text-sm tracking-widest text-white focus:outline-none focus:border-orange-500">
-          <p id="pin-error-msg" class="text-xs text-red-400 hidden">गलत पिन! 7860 डालें।</p>
-          <button type="button" onclick="checkAdminPin()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30">
-            लॉगिन करें
+                 placeholder="पिन (7860)" 
+                 class="w-36 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-center text-sm tracking-widest text-white focus:outline-none focus:border-orange-500">
+          <button type="button" onclick="checkAdminPin()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-orange-600/30">
+            लॉगिन
           </button>
         </div>
+        <p id="pin-error-msg" class="text-xs text-red-400 hidden">गलत पिन! सही पिन 7860 है।</p>
       </div>
 
-      <!-- Step 2: Admin Dashboard Content -->
-      <div id="admin-main-view" class="hidden flex-1 overflow-y-auto custom-scroll pt-3 space-y-4">
+      <!-- Admin Upload & Settings (Visible After Login) -->
+      <div id="admin-main-view" class="hidden space-y-4 pt-1">
         
+        <!-- Navigation Tabs -->
         <div class="flex items-center gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs">
           <button type="button" id="tab-btn-add" onclick="switchTab('add')" class="flex-1 py-1.5 rounded-lg font-bold text-white bg-orange-600 transition text-center">
             + नया प्रॉम्प्ट
@@ -222,14 +191,14 @@
             प्रॉम्प्ट्स मैनेज
           </button>
           <button type="button" id="tab-btn-profile" onclick="switchTab('profile')" class="flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center">
-            प्रोफाइल & लिंक्स
+            प्रोफाइल सेटिंग्स
           </button>
         </div>
 
         <!-- TAB 1: Add New Prompt -->
-        <div id="tab-view-add" class="space-y-4">
+        <div id="tab-view-add" class="space-y-3.5">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">AI टूल चुनें</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">AI टूल चुनें</label>
             <select id="new-prompt-cat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
               <option value="Midjourney">Midjourney</option>
               <option value="ChatGPT">ChatGPT</option>
@@ -240,13 +209,12 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">रेफरेंस फोटो (गैलरी से)</label>
-            <label for="prompt-gallery-input" class="cursor-pointer block border-2 border-dashed border-slate-700 hover:border-orange-500 rounded-2xl p-4 text-center bg-slate-900/50 transition">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">रेफरेंस फोटो (गैलरी से)</label>
+            <label for="prompt-gallery-input" class="cursor-pointer block border-2 border-dashed border-slate-700 hover:border-orange-500 rounded-2xl p-4 text-center bg-slate-900/60 transition">
               <input type="file" id="prompt-gallery-input" accept="image/*" class="hidden" onchange="handlePromptGalleryFile(this)">
-              <div id="prompt-upload-prompt" class="space-y-2">
-                <i class="fa-solid fa-images text-2xl text-slate-400 hover:text-orange-400 transition"></i>
-                <p class="text-xs font-medium text-slate-300">गैलरी से फोटो चुनें</p>
-                <p class="text-[10px] text-slate-500">JPG, PNG (Auto Compressed)</p>
+              <div id="prompt-upload-prompt" class="space-y-1">
+                <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400"></i>
+                <p class="text-xs font-medium text-slate-300">गैलरी से फोटो चुनें (Auto Compressed)</p>
               </div>
               <div id="prompt-preview-wrap" class="hidden relative">
                 <img id="prompt-preview-img" src="" alt="Preview" class="w-full h-36 object-cover rounded-xl border border-slate-700">
@@ -258,31 +226,31 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">प्रॉम्प्ट टेक्स्ट (यहाँ पेस्ट करें)</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">प्रॉम्प्ट टेक्स्ट (यहाँ लिखें या पेस्ट करें)</label>
             <textarea id="new-prompt-text" rows="4" placeholder="यहाँ अपना AI प्रॉम्प्ट पेस्ट करें..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"></textarea>
           </div>
 
           <button type="button" id="btn-publish" onclick="publishNewPrompt()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-paper-plane"></i> वेबसाइट पर पब्लिश करें
+            <i class="fa-solid fa-paper-plane"></i> सब यूजर्स के लिए पब्लिश करें
           </button>
         </div>
 
         <!-- TAB 2: Manage Prompts -->
         <div id="tab-view-manage" class="hidden space-y-3">
           <div class="flex items-center justify-between text-xs text-slate-400 px-1">
-            <span>सहेजे गए प्रॉम्प्ट्स</span>
+            <span>कुल लाइव प्रॉम्प्ट्स</span>
             <span id="manage-count-badge" class="font-bold text-white">0</span>
           </div>
           <div id="manage-prompts-list" class="space-y-2 max-h-72 overflow-y-auto custom-scroll pr-1"></div>
         </div>
 
         <!-- TAB 3: Profile Settings -->
-        <div id="tab-view-profile" class="hidden space-y-4">
+        <div id="tab-view-profile" class="hidden space-y-3">
           <div class="flex items-center gap-4 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-            <img id="admin-avatar-thumb" src="" alt="Thumbnail" class="w-14 h-14 rounded-full object-cover ring-2 ring-orange-500">
+            <img id="admin-avatar-thumb" src="" alt="Thumbnail" class="w-12 h-12 rounded-full object-cover ring-2 ring-orange-500">
             <div>
-              <label for="profile-gallery-input" class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition">
-                <i class="fa-solid fa-camera text-orange-400"></i> फोटो बदलें
+              <label for="profile-gallery-input" class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition">
+                <i class="fa-solid fa-camera text-orange-400"></i> प्रोफाइल फोटो बदलें
               </label>
               <input type="file" id="profile-gallery-input" accept="image/*" class="hidden" onchange="handleProfileGalleryFile(this)">
             </div>
@@ -291,7 +259,7 @@
           <div class="space-y-2">
             <input type="text" id="cfg-name" placeholder="नाम / ब्रांड" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <textarea id="cfg-bio" rows="2" placeholder="बायो" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"></textarea>
-            <input type="text" id="cfg-video" placeholder="यूट्यूब वीडियो या Shorts लिंक" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            <input type="text" id="cfg-video" placeholder="YouTube Video या Shorts URL" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <input type="text" id="cfg-insta" placeholder="Instagram लिंक/यूजरनेम" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <input type="text" id="cfg-yt" placeholder="YouTube चैनल लिंक" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <input type="text" id="cfg-wa" placeholder="WhatsApp नंबर" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
@@ -305,10 +273,16 @@
         </div>
 
       </div>
-    </div>
-  </div>
+    </section>
+
+    <footer class="pt-4 pb-8 text-center text-[11px] text-slate-600">
+      PromptVerse India &copy; 2026
+    </footer>
+
+  </main>
 
   <script>
+    // Exact Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBiqQNAriWNoL9FUzQcUMCP4-Z9ueARY7c",
       authDomain: "promptverseindia-d437d.firebaseapp.com",
@@ -339,6 +313,18 @@
       }
     });
 
+    function checkAdminPin() {
+      const pin = document.getElementById('admin-pin-input').value.trim();
+      if (pin === "7860") {
+        document.getElementById('admin-pin-view').style.display = 'none';
+        document.getElementById('admin-main-view').classList.remove('hidden');
+        document.getElementById('admin-status-badge').innerText = "Unlocked";
+        document.getElementById('admin-status-badge').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30";
+      } else {
+        document.getElementById('pin-error-msg').classList.remove('hidden');
+      }
+    }
+
     function fetchGlobalPrompts() {
       db.collection("prompts").onSnapshot((snapshot) => {
         allPrompts = [];
@@ -361,7 +347,7 @@
       const container = document.getElementById("prompts-container");
       if (!container) return;
       if (list.length === 0) {
-        container.innerHTML = `<div class="text-center text-xs text-slate-500 py-8 bg-slate-900/40 rounded-2xl border border-slate-800">अभी कोई प्रॉम्प्ट नहीं मिला।</div>`;
+        container.innerHTML = `<div class="text-center text-xs text-slate-500 py-8 bg-slate-900/40 rounded-2xl border border-slate-800">अभी कोई प्रॉम्प्ट नहीं मिला। नीचे एडमिन पैनल से नया प्रॉम्प्ट पोस्ट करें!</div>`;
         return;
       }
 
@@ -375,4 +361,11 @@
           <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 select-all leading-relaxed whitespace-pre-wrap font-mono">
             ${item.prompt}
           </div>
-        
+          <button type="button" onclick="copyPromptText('${encodeURIComponent(item.prompt)}', this)" class="w-full bg-slate-800 hover:bg-orange-600 hover:text-white text-slate-300 font-semibold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
+            <i class="fa-regular fa-copy"></i> प्रॉम्प्ट कॉपी करें
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function copyPromptText(encodedTex
