@@ -42,7 +42,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .glass-box {
-      background: rgba(17, 24, 39, 0.90);
+      background: rgba(17, 24, 39, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -60,7 +60,7 @@
 
   <main class="w-full max-w-lg space-y-6">
     
-    <!-- Top Branding Strip -->
+    <!-- Top Header -->
     <header class="flex items-center justify-between px-2 pt-1">
       <div class="flex items-center gap-2">
         <span class="inline-block w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
@@ -71,7 +71,7 @@
       </div>
     </header>
 
-    <!-- Profile Header Card -->
+    <!-- Profile Card -->
     <section class="glass-box rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
       <div class="absolute -top-16 -right-16 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
@@ -80,7 +80,7 @@
              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=240&auto=format&fit=crop&q=80" 
              alt="Profile" 
              class="w-full h-full rounded-full object-cover ring-4 ring-orange-500/30 p-0.5 shadow-xl transition-transform duration-300">
-        <div class="absolute bottom-1 right-1 bg-blue-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-[10px] shadow" title="Verified Creator">
+        <div class="absolute bottom-1 right-1 bg-blue-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-[10px] shadow">
           <i class="fa-solid fa-check"></i>
         </div>
       </div>
@@ -93,11 +93,11 @@
       <div id="ui-social-container" class="flex flex-wrap items-center justify-center gap-3 pt-5 border-t border-slate-800/80 mt-5"></div>
     </section>
 
-    <!-- Video Player Section -->
-    <section id="ui-video-wrapper" class="hidden space-y-2">
+    <!-- Video Section -->
+    <section id="ui-video-wrapper" style="display:none;" class="space-y-2">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-          <i class="fa-solid fa-circle-play text-red-500"></i> लेटेस्ट वीडियो ट्यूटोरियल
+          <i class="fa-solid fa-circle-play text-red-500"></i> वीडियो ट्यूटोरियल
         </h2>
       </div>
       <div class="glass-box rounded-2xl p-2.5 shadow-xl overflow-hidden">
@@ -113,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Prompts Feed Section -->
+    <!-- Prompts Section -->
     <section class="space-y-3.5">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
@@ -148,55 +148,59 @@
       </div>
     </section>
 
-    <!-- Admin Panel (No Hints Shown) -->
-    <section id="admin-direct-card" class="glass-box rounded-3xl p-5 border border-slate-800 shadow-2xl space-y-4 mt-8">
+    <!-- Dedicated Direct Admin Control Center -->
+    <section id="admin-box" class="glass-box rounded-3xl p-5 border border-slate-800 shadow-2xl space-y-4 mt-8">
       
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm font-bold">
-            <i class="fa-solid fa-user-shield"></i>
+            <i class="fa-solid fa-user-gear"></i>
           </div>
           <div>
             <h3 class="text-sm font-bold text-white">ओनर कंट्रोल पैनल</h3>
             <p class="text-[10px] text-slate-400">सुरक्षित एडमिन एक्सेस</p>
           </div>
         </div>
-        <span id="admin-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">सुरक्षित</span>
+        <span id="admin-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">लॉक</span>
       </div>
 
-      <!-- PIN Input View -->
-      <div id="admin-pin-view" class="space-y-3 py-3 text-center">
-        <p class="text-xs text-slate-400">एक्सेस अनलॉक करने के लिए सिक्योरिटी पिन दर्ज करें:</p>
+      <!-- PIN Auth Box -->
+      <div id="pin-screen" style="display:block;" class="py-3 text-center space-y-3">
+        <p class="text-xs text-slate-400">एक्सेस करने के लिए अपना पिन डालें:</p>
         <div class="flex items-center justify-center gap-2 max-w-xs mx-auto">
           <input type="password" 
-                 id="admin-pin-input" 
+                 id="pin-field" 
                  placeholder="पिन दर्ज करें" 
+                 autocomplete="off"
                  class="w-36 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-center text-sm tracking-widest text-white focus:outline-none focus:border-orange-500">
-          <button type="button" onclick="checkAdminPin()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-orange-600/30">
+          <button type="button" 
+                  id="pin-submit-btn" 
+                  onclick="handleAdminLogin()" 
+                  class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg cursor-pointer">
             अनलॉक
           </button>
         </div>
-        <p id="pin-error-msg" class="text-xs text-red-400 hidden">अमान्य पिन! कृपया सही पिन दर्ज करें।</p>
+        <p id="pin-err" style="display:none;" class="text-xs text-red-400 font-medium">अमान्य पिन! कृपया सही पिन दर्ज करें।</p>
       </div>
 
-      <!-- Admin Upload & Settings (Visible Only After Correct PIN) -->
-      <div id="admin-main-view" class="hidden space-y-4 pt-1">
+      <!-- Main Admin Dashboard (Completely Unlocked via style.display) -->
+      <div id="dashboard-screen" style="display:none;" class="space-y-4 pt-1">
         
-        <!-- Navigation Tabs -->
+        <!-- Tab Bar -->
         <div class="flex items-center gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs">
-          <button type="button" id="tab-btn-add" onclick="switchTab('add')" class="flex-1 py-1.5 rounded-lg font-bold text-white bg-orange-600 transition text-center">
+          <button type="button" id="tab-btn-add" onclick="switchDashboardTab('add')" class="flex-1 py-1.5 rounded-lg font-bold text-white bg-orange-600 transition text-center">
             + नया प्रॉम्प्ट
           </button>
-          <button type="button" id="tab-btn-manage" onclick="switchTab('manage')" class="flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center">
+          <button type="button" id="tab-btn-manage" onclick="switchDashboardTab('manage')" class="flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center">
             प्रॉम्प्ट्स मैनेज
           </button>
-          <button type="button" id="tab-btn-profile" onclick="switchTab('profile')" class="flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center">
+          <button type="button" id="tab-btn-profile" onclick="switchDashboardTab('profile')" class="flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center">
             प्रोफाइल सेटिंग्स
           </button>
         </div>
 
-        <!-- TAB 1: Add New Prompt -->
-        <div id="tab-view-add" class="space-y-3.5">
+        <!-- TAB 1: Add Prompt -->
+        <div id="tab-content-add" style="display:block;" class="space-y-3.5">
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">AI टूल चुनें</label>
             <select id="new-prompt-cat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500">
@@ -216,7 +220,7 @@
                 <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400"></i>
                 <p class="text-xs font-medium text-slate-300">गैलरी से फोटो चुनें (Auto Compressed)</p>
               </div>
-              <div id="prompt-preview-wrap" class="hidden relative">
+              <div id="prompt-preview-wrap" style="display:none;" class="relative">
                 <img id="prompt-preview-img" src="" alt="Preview" class="w-full h-36 object-cover rounded-xl border border-slate-700">
                 <button type="button" onclick="clearPromptImage(event)" class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 w-6 h-6 flex items-center justify-center text-xs shadow-lg">
                   <i class="fa-solid fa-xmark"></i>
@@ -230,13 +234,13 @@
             <textarea id="new-prompt-text" rows="4" placeholder="यहाँ अपना AI प्रॉम्प्ट लिखें या पेस्ट करें..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"></textarea>
           </div>
 
-          <button type="button" id="btn-publish" onclick="publishNewPrompt()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2">
+          <button type="button" id="btn-publish" onclick="publishNewPrompt()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2 cursor-pointer">
             <i class="fa-solid fa-paper-plane"></i> सब यूजर्स के लिए पब्लिश करें
           </button>
         </div>
 
         <!-- TAB 2: Manage Prompts -->
-        <div id="tab-view-manage" class="hidden space-y-3">
+        <div id="tab-content-manage" style="display:none;" class="space-y-3">
           <div class="flex items-center justify-between text-xs text-slate-400 px-1">
             <span>कुल लाइव प्रॉम्प्ट्स</span>
             <span id="manage-count-badge" class="font-bold text-white">0</span>
@@ -245,7 +249,7 @@
         </div>
 
         <!-- TAB 3: Profile Settings -->
-        <div id="tab-view-profile" class="hidden space-y-3">
+        <div id="tab-content-profile" style="display:none;" class="space-y-3">
           <div class="flex items-center gap-4 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
             <img id="admin-avatar-thumb" src="" alt="Thumbnail" class="w-12 h-12 rounded-full object-cover ring-2 ring-orange-500">
             <div>
@@ -259,7 +263,7 @@
           <div class="space-y-2">
             <input type="text" id="cfg-name" placeholder="नाम / ब्रांड" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <textarea id="cfg-bio" rows="2" placeholder="बायो" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"></textarea>
-            <input type="text" id="cfg-video" placeholder="YouTube Video या Shorts URL" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            <input type="text" id="cfg-video" placeholder="YouTube Video URL" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <input type="text" id="cfg-insta" placeholder="Instagram लिंक/यूजरनेम" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <input type="text" id="cfg-yt" placeholder="YouTube चैनल लिंक" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             <input type="text" id="cfg-wa" placeholder="WhatsApp नंबर" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
@@ -267,7 +271,7 @@
             <input type="text" id="cfg-web" placeholder="वेबसाइट लिंक" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
           </div>
 
-          <button type="button" onclick="saveProfileSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg">
+          <button type="button" onclick="saveProfileSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg cursor-pointer">
             सेटिंग्स सेव करें
           </button>
         </div>
@@ -282,7 +286,40 @@
   </main>
 
   <script>
-    // Exact Firebase Configuration
+    // 1. Direct & Guaranteed Admin Login Handler (Runs without any dependency)
+    function handleAdminLogin() {
+      const input = document.getElementById('pin-field');
+      const err = document.getElementById('pin-err');
+      const val = input ? input.value.trim() : '';
+
+      if (val === "7860") {
+        document.getElementById('pin-screen').style.display = 'none';
+        document.getElementById('dashboard-screen').style.display = 'block';
+        const badge = document.getElementById('admin-status-badge');
+        badge.innerText = "अनलॉक";
+        badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30";
+      } else {
+        err.style.display = 'block';
+      }
+    }
+
+    // Tab Switcher
+    function switchDashboardTab(tab) {
+      ['add', 'manage', 'profile'].forEach(t => {
+        const el = document.getElementById('tab-content-' + t);
+        const btn = document.getElementById('tab-btn-' + t);
+        if (el) el.style.display = (t === tab) ? 'block' : 'none';
+        if (btn) {
+          if (t === tab) {
+            btn.className = "flex-1 py-1.5 rounded-lg font-bold text-white bg-orange-600 transition text-center";
+          } else {
+            btn.className = "flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition text-center";
+          }
+        }
+      });
+    }
+
+    // 2. Firebase Database Setup
     const firebaseConfig = {
       apiKey: "AIzaSyBiqQNAriWNoL9FUzQcUMCP4-Z9ueARY7c",
       authDomain: "promptverseindia-d437d.firebaseapp.com",
@@ -292,10 +329,15 @@
       appId: "1:764009719974:web:284e789aa962da8f96eca7"
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
+    let db = null;
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.firestore();
+    } catch(e) {
+      console.warn("Firebase Init notice: ", e);
     }
-    const db = firebase.firestore();
 
     let allPrompts = [];
     let selectedPromptImageBase64 = "";
@@ -303,28 +345,18 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       loadProfileData();
-      fetchGlobalPrompts();
+      if (db) fetchGlobalPrompts();
 
-      const pinInput = document.getElementById("admin-pin-input");
-      if (pinInput) {
-        pinInput.addEventListener("keyup", function(e) {
-          if (e.key === "Enter") checkAdminPin();
+      const pinField = document.getElementById("pin-field");
+      if (pinField) {
+        pinField.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleAdminLogin();
+          }
         });
       }
     });
-
-    // Verification Logic (Secret matching without exposing hints on screen)
-    function checkAdminPin() {
-      const pin = document.getElementById('admin-pin-input').value.trim();
-      if (pin === "7860") {
-        document.getElementById('admin-pin-view').style.display = 'none';
-        document.getElementById('admin-main-view').classList.remove('hidden');
-        document.getElementById('admin-status-badge').innerText = "अनलॉक";
-        document.getElementById('admin-status-badge').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30";
-      } else {
-        document.getElementById('pin-error-msg').classList.remove('hidden');
-      }
-    }
 
     function fetchGlobalPrompts() {
       db.collection("prompts").onSnapshot((snapshot) => {
@@ -332,7 +364,6 @@
         snapshot.forEach((doc) => {
           allPrompts.push({ id: doc.id, ...doc.data() });
         });
-        
         allPrompts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         const counter = document.getElementById("ui-prompt-counter");
@@ -340,7 +371,7 @@
         renderPrompts(allPrompts);
         renderManagePrompts();
       }, (err) => {
-        console.error("Firestore read error: ", err);
+        console.error("Firestore error: ", err);
       });
     }
 
@@ -354,16 +385,4 @@
 
       container.innerHTML = list.map((item) => `
         <div class="glass-box rounded-2xl p-4 space-y-3 border border-slate-800/80">
-          <div class="flex items-center justify-between text-[11px]">
-            <span class="font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">${item.category || 'General'}</span>
-            <span class="text-slate-500">${item.date || ''}</span>
-          </div>
-          ${item.image ? `<img src="${item.image}" alt="Reference" class="w-full h-48 object-cover rounded-xl border border-slate-800" loading="lazy">` : ''}
-          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 select-all leading-relaxed whitespace-pre-wrap font-mono">
-            ${item.prompt}
-          </div>
-          <button type="button" onclick="copyPromptText('${encodeURIComponent(item.prompt)}', this)" class="w-full bg-slate-800 hover:bg-orange-600 hover:text-white text-slate-300 font-semibold py-2 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
-            <i class="fa-regular fa-copy"></i> प्रॉम्प्ट कॉपी करें
-          </button>
-        </div>
-      `).jo
+          <div cl
