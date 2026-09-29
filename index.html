@@ -42,7 +42,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .glass-box {
-      background: rgba(17, 24, 39, 0.85);
+      background: rgba(17, 24, 39, 0.90);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -53,6 +53,20 @@
     .custom-scroll::-webkit-scrollbar-thumb {
       background: #374151;
       border-radius: 4px;
+    }
+    /* एडमिन मोडल हमेशा सबसे ऊपर रहे */
+    #admin-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
     }
   </style>
 </head>
@@ -119,7 +133,7 @@
           <i class="fa-solid fa-wand-magic-sparkles text-orange-400"></i> AI प्रॉम्प्ट्स & रेफरेंस
         </h2>
         <span id="ui-prompt-counter" class="text-[11px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2.5 py-0.5 rounded-full">
-          लोड हो रहा है...
+          0 प्रॉम्प्ट्स
         </span>
       </div>
 
@@ -149,7 +163,7 @@
 
     <!-- Footer & Admin Trigger -->
     <footer class="pt-6 pb-8 text-center space-y-2">
-      <button type="button" onclick="openAdminModal()" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-orange-400 bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-700 hover:border-orange-500 transition shadow">
+      <button type="button" onclick="openAdminModal()" class="inline-flex items-center gap-2 text-xs font-semibold text-orange-400 hover:text-white bg-slate-900 px-4 py-2.5 rounded-xl border border-orange-500/40 hover:bg-orange-600 transition shadow-lg cursor-pointer">
         <i class="fa-solid fa-lock text-[11px]"></i> ओनर कंट्रोल पैनल (Admin Login)
       </button>
       <p class="text-[11px] text-slate-600">PromptVerse India &copy; 2026</p>
@@ -157,8 +171,8 @@
 
   </main>
 
-  <!-- Admin Modal -->
-  <div id="admin-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4">
+  <!-- Admin Modal Popup -->
+  <div id="admin-modal">
     <div class="glass-box w-full max-w-lg rounded-3xl p-5 sm:p-6 border border-slate-700 shadow-2xl max-h-[92vh] flex flex-col">
       
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -226,11 +240,11 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">रेफरेंस फोटो (फोन गैलरी से)</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">रेफरेंस फोटो (गैलरी से)</label>
             <label for="prompt-gallery-input" class="cursor-pointer block border-2 border-dashed border-slate-700 hover:border-orange-500 rounded-2xl p-4 text-center bg-slate-900/50 transition">
               <input type="file" id="prompt-gallery-input" accept="image/*" class="hidden" onchange="handlePromptGalleryFile(this)">
               <div id="prompt-upload-prompt" class="space-y-2">
-                <i class="fa-solid fa-images text-2xl text-slate-400 group-hover:text-orange-400 transition"></i>
+                <i class="fa-solid fa-images text-2xl text-slate-400 hover:text-orange-400 transition"></i>
                 <p class="text-xs font-medium text-slate-300">गैलरी से फोटो चुनें</p>
                 <p class="text-[10px] text-slate-500">JPG, PNG (Auto Compressed)</p>
               </div>
@@ -244,7 +258,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">प्रॉम्प्ट टेक्स्ट (यहाँ लिखें या पेस्ट करें)</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">प्रॉम्प्ट टेक्स्ट (यहाँ पेस्ट करें)</label>
             <textarea id="new-prompt-text" rows="4" placeholder="यहाँ अपना AI प्रॉम्प्ट पेस्ट करें..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"></textarea>
           </div>
 
@@ -317,24 +331,21 @@
       loadProfileData();
       fetchGlobalPrompts();
 
-      // Enter दबाने पर भी पिन चेक हो जाएगा
       const pinInput = document.getElementById("admin-pin-input");
       if (pinInput) {
-        pinInput.addEventListener("keypress", function(e) {
+        pinInput.addEventListener("keyup", function(e) {
           if (e.key === "Enter") checkAdminPin();
         });
       }
     });
 
     function fetchGlobalPrompts() {
-      // Indexing issue से बचने के लिए safe query
       db.collection("prompts").onSnapshot((snapshot) => {
         allPrompts = [];
         snapshot.forEach((doc) => {
           allPrompts.push({ id: doc.id, ...doc.data() });
         });
         
-        // Sorting manually by timestamp to prevent Firebase index errors
         allPrompts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         const counter = document.getElementById("ui-prompt-counter");
@@ -364,4 +375,4 @@
           <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 select-all leading-relaxed whitespace-pre-wrap font-mono">
             ${item.prompt}
           </div>
-          <button type="button" onclick="copyPromptT
+        
