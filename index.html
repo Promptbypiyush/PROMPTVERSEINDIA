@@ -148,38 +148,38 @@
       </div>
     </section>
 
-    <!-- Built-in Direct Admin Section (No Hidden Popups) -->
+    <!-- Admin Panel (No Hints Shown) -->
     <section id="admin-direct-card" class="glass-box rounded-3xl p-5 border border-slate-800 shadow-2xl space-y-4 mt-8">
       
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm font-bold">
-            <i class="fa-solid fa-lock"></i>
+            <i class="fa-solid fa-user-shield"></i>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-white">ओनर कंट्रोल पैनल (Admin Panel)</h3>
-            <p class="text-[10px] text-slate-400">नया प्रॉम्प्ट पोस्ट करें या सेटिंग्स बदलें</p>
+            <h3 class="text-sm font-bold text-white">ओनर कंट्रोल पैनल</h3>
+            <p class="text-[10px] text-slate-400">सुरक्षित एडमिन एक्सेस</p>
           </div>
         </div>
-        <span id="admin-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">Locked</span>
+        <span id="admin-status-badge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">सुरक्षित</span>
       </div>
 
       <!-- PIN Input View -->
-      <div id="admin-pin-view" class="space-y-3 py-2 text-center">
-        <p class="text-xs text-slate-400">पैनल खोलने के लिए ओनर पिन डालें:</p>
+      <div id="admin-pin-view" class="space-y-3 py-3 text-center">
+        <p class="text-xs text-slate-400">एक्सेस अनलॉक करने के लिए सिक्योरिटी पिन दर्ज करें:</p>
         <div class="flex items-center justify-center gap-2 max-w-xs mx-auto">
           <input type="password" 
                  id="admin-pin-input" 
-                 placeholder="पिन (7860)" 
+                 placeholder="पिन दर्ज करें" 
                  class="w-36 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-center text-sm tracking-widest text-white focus:outline-none focus:border-orange-500">
           <button type="button" onclick="checkAdminPin()" class="bg-orange-600 hover:bg-orange-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-orange-600/30">
-            लॉगिन
+            अनलॉक
           </button>
         </div>
-        <p id="pin-error-msg" class="text-xs text-red-400 hidden">गलत पिन! सही पिन 7860 है।</p>
+        <p id="pin-error-msg" class="text-xs text-red-400 hidden">अमान्य पिन! कृपया सही पिन दर्ज करें।</p>
       </div>
 
-      <!-- Admin Upload & Settings (Visible After Login) -->
+      <!-- Admin Upload & Settings (Visible Only After Correct PIN) -->
       <div id="admin-main-view" class="hidden space-y-4 pt-1">
         
         <!-- Navigation Tabs -->
@@ -226,8 +226,8 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">प्रॉम्प्ट टेक्स्ट (यहाँ लिखें या पेस्ट करें)</label>
-            <textarea id="new-prompt-text" rows="4" placeholder="यहाँ अपना AI प्रॉम्प्ट पेस्ट करें..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"></textarea>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">प्रॉम्प्ट टेक्स्ट</label>
+            <textarea id="new-prompt-text" rows="4" placeholder="यहाँ अपना AI प्रॉम्प्ट लिखें या पेस्ट करें..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"></textarea>
           </div>
 
           <button type="button" id="btn-publish" onclick="publishNewPrompt()" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2">
@@ -313,12 +313,13 @@
       }
     });
 
+    // Verification Logic (Secret matching without exposing hints on screen)
     function checkAdminPin() {
       const pin = document.getElementById('admin-pin-input').value.trim();
       if (pin === "7860") {
         document.getElementById('admin-pin-view').style.display = 'none';
         document.getElementById('admin-main-view').classList.remove('hidden');
-        document.getElementById('admin-status-badge').innerText = "Unlocked";
+        document.getElementById('admin-status-badge').innerText = "अनलॉक";
         document.getElementById('admin-status-badge').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30";
       } else {
         document.getElementById('pin-error-msg').classList.remove('hidden');
@@ -365,7 +366,4 @@
             <i class="fa-regular fa-copy"></i> प्रॉम्प्ट कॉपी करें
           </button>
         </div>
-      `).join('');
-    }
-
-    function copyPromptText(encodedTex
+      `).jo
